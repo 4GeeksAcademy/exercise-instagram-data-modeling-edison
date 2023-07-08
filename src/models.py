@@ -1,29 +1,50 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+import enum
+from sqlalchemy import Column, ForeignKey, Integer, String,Enum
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import create_engine
 from eralchemy2 import render_er
 
+class postEnum(enum.Enum):
+    single_photo = "single photo"
+    carousel = "carousel"
+    videos = "videos"
+
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+class User(Base):
+    __tablename__ = "user"
+    id= Column(Integer, primary_key=True)
+    username = Column(String(50), nullable= False)
+    firstname = Column(String(250),nullable=False)
+    lastname = Column(String(250), nullable=False)
+    email = Column(String(250), nullable= False)
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+    
+class Post(Base):
+    __tablename__ = "post"
+    id = Column(Integer, primary_key = True)
+    user = Column(Integer,ForeignKey("user"))
+
+class Media(Base):
+    __tablename__ = "media"
+    id= Column(Integer,primary_key=True)
+    type = Column(Enum(postEnum))
+    url = Column(String(250), nullable=False)
+    post = Column(Integer,ForeignKey("post"))
+
+class Comment(Base):
+    __tablename__ ="comment"
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    comment_text = Column(String(250))
+    user = Column(Integer, ForeignKey("user"))
+    post = Column(Integer, ForeignKey("post"))
+
+class Follower(Base):
+    __tablename__ ="follower"
+    user_from = Column(Integer, primary_key=True)
+    user_to = Column(Integer, ForeignKey("user"))
 
     def to_dict(self):
         return {}
